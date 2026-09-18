@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en" data-script="simp">
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <!-- Primary SEO -->
+  <title>Learn Chinese Characters (Hanzi) by Writing Stroke by Stroke</title>
+
+  <meta
+    name="description"
+    content="Learn Chinese characters by writing Hanzi stroke by stroke. Practice simplified and traditional Chinese characters with guided stroke order and interactive feedback."
+  >
+
+  <meta
+    name="keywords"
+    content="learn Chinese characters, learn Hanzi, Chinese character practice, Hanzi writing practice, Chinese stroke order, Chinese character stroke order, simplified Chinese, traditional Chinese"
+  >
+
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#3b82f6">
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://hanzi.tegarsantosa.com/">
+
+  <!-- Favicon -->
+  <link
+    rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%233b82f6'/%3E%3Ctext x='32' y='44' font-size='36' text-anchor='middle' fill='white' font-family='sans-serif'%3E%E5%AD%97%3C/text%3E%3C/svg%3E"
+  >
+
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Learn Chinese Characters (Hanzi) by Writing Stroke by Stroke">
+  <meta
+    property="og:description"
+    content="Practice writing Chinese characters stroke by stroke with guided stroke order and interactive feedback. Supports simplified and traditional Hanzi."
+  >
+  <meta property="og:url" content="https://hanzi.tegarsantosa.com/">
+  <meta property="og:site_name" content="Learn Hanzi with tegarsantosa">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap"
+    rel="stylesheet"
+  >
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="loading" class="loading" aria-live="polite">
+    <div class="loading-char clay hanzi">字</div>
+    <p>Loading 9,000+ characters…</p>
+  </div>
+
+  <header class="topbar">
+    <a class="brand" href="#/">
+      <span class="logo clay hanzi">字</span>
+      <span class="brand-text"><strong>Learn Hanzi</strong><small>with tegarsantosa</small></span>
+    </a>
+    <nav class="nav clay" aria-label="Main">
+      <a href="#/" data-nav="home">✍️ Practice</a>
+      <a href="#/progress" data-nav="progress">⭐ My Hanzi</a>
+      <a href="#/strokes" data-nav="strokes">🖌️ 28 Strokes</a>
+    </nav>
+    <div class="script-toggle clay" role="group" aria-label="Character set">
+      <button type="button" data-script="simp" class="active"><span class="hanzi">简</span> Simplified</button>
+      <button type="button" data-script="trad"><span class="hanzi">繁</span> Traditional</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================= HOME / SETUP ================= -->
+    <section id="view-home" class="view">
+      <div class="hero">
+        <h1>Write hanzi.<br><span>Right here, right now.</span></h1>
+        <p>Pick a mode, trace the strokes, feel the flow. <span class="hanzi">加油!</span></p>
+      </div>
+
+      <div class="setup">
+        <div class="clay card">
+          <h2>Mode</h2>
+          <div class="mode-cards">
+            <button type="button" class="mode-card clay active" data-mode="random">
+              <span class="emoji">🎲</span>
+              <strong>Random</strong>
+              <small>Endless characters, one after another</small>
+            </button>
+            <button type="button" class="mode-card clay" data-mode="search">
+              <span class="emoji">🔍</span>
+              <strong>Search</strong>
+              <small>Pick one character or a whole word</small>
+            </button>
+          </div>
+
+          <div id="random-options" class="sub-options">
+            <label class="opt-label">Character pool</label>
+            <div class="chips" id="level-chips">
+              <button type="button" data-level="common" class="active">Common <em>top 500</em></button>
+              <button type="button" data-level="everyday">Everyday <em>top 1,500</em></button>
+              <button type="button" data-level="advanced">Advanced <em>top 3,500</em></button>
+              <button type="button" data-level="all">Everything <em id="pool-count">all</em></button>
+            </div>
+          </div>
+
+          <div id="search-options" class="sub-options" hidden>
+            <label class="opt-label" for="search-input">Find a character or word</label>
+            <div class="search-box clay">
+              <span class="search-icon">🔍</span>
+              <input id="search-input" type="search" autocomplete="off" spellcheck="false"
+                     placeholder="汉字 · pinyin (ni3, nǐ) · English">
+            </div>
+            <div id="search-results" class="results" role="listbox"></div>
+            <div id="search-picked" class="picked" hidden>
+              <span class="picked-label">Ready to write</span>
+              <div class="picked-chars"></div>
+              <button type="button" class="link-btn" id="picked-clear">clear</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="clay card">
+          <h2>Options</h2>
+
+          <div class="opt-row">
+            <div><label class="opt-label">Repetitions</label><small class="opt-help">Write each character this many times</small></div>
+            <div class="stepper clay">
+              <button type="button" data-step="-1" aria-label="Fewer repetitions">−</button>
+              <output id="reps-out">3</output>
+              <button type="button" data-step="1" aria-label="More repetitions">+</button>
+            </div>
+          </div>
+
+          <div class="opt-row">
+            <div><label class="opt-label">Stroke guidance</label><small class="opt-help">Learn the order with the 28 standard strokes</small></div>
+            <div class="seg clay" id="guidance-seg">
+              <button type="button" data-guidance="yes" class="active">Yes</button>
+              <button type="button" data-guidance="no">No</button>
+            </div>
+          </div>
+
+          <div class="opt-row column" id="guide-type-row">
+            <label class="opt-label">Guide style</label>
+            <div class="guide-cards">
+              <button type="button" class="guide-card clay active" data-guide="realtime">
+                <span class="guide-pic">
+                  <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="6" y="6" width="52" height="52" rx="10" fill="none" stroke="currentColor" stroke-width="3" opacity=".4"/><path d="M18 24h28M32 18v30M20 46q12-10 24 0" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" opacity=".35"/><path d="M18 24h28" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round"/></svg>
+                </span>
+                <strong>Realtime</strong>
+                <small>Each stroke lights up on top of the character as you go</small>
+              </button>
+              <button type="button" class="guide-card clay" data-guide="steps">
+                <span class="guide-pic">
+                  <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="20" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2.5" opacity=".5"/><rect x="24" y="20" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2.5" opacity=".5"/><rect x="44" y="20" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2.5" opacity=".5"/><path d="M8 28h8" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M28 28h8M32 24v8" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M48 28h8M52 24v8" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M47 33q5-4 10 0" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/></svg>
+                </span>
+                <strong>Step-by-step</strong>
+                <small>One box per stroke: rewrite what you know, add the new one</small>
+              </button>
+            </div>
+          </div>
+
+          <button type="button" id="start-btn" class="btn primary big">Start writing ✍️</button>
+        </div>
+      </div>
+
+      <div class="clay card home-stats" id="home-stats" hidden></div>
+    </section>
+
+    <!-- ================= PRACTICE ================= -->
+    <section id="view-practice" class="view" hidden>
+      <div class="practice-top">
+        <button type="button" id="back-btn" class="btn ghost small">← Setup</button>
+        <div class="rep-dots" id="rep-dots" aria-label="Repetitions"></div>
+        <div class="mode-badge clay" id="mode-badge"></div>
+      </div>
+
+      <div class="practice-grid">
+        <aside class="clay card info-card">
+          <div class="char-preview clay" id="char-preview" title="Watch the stroke order"></div>
+          <div class="pinyin" id="char-pinyin"></div>
+          <div class="meaning" id="char-meaning"></div>
+          <div class="meta" id="char-meta"></div>
+          <div class="variants" id="char-variants"></div>
+          <div class="info-actions">
+            <button type="button" id="replay-btn" class="btn small">▶ Watch</button>
+            <button type="button" id="skip-btn" class="btn small ghost">Skip →</button>
+          </div>
+        </aside>
+
+        <div class="clay card write-card">
+          <div class="stroke-label" id="stroke-label"></div>
+          <div id="pad-wrap" class="pad-wrap"></div>
+          <div class="write-actions">
+            <button type="button" id="hint-btn" class="btn small">💡 Hint</button>
+            <button type="button" id="restart-btn" class="btn small ghost">↺ Restart</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="done-panel" class="clay card done-panel" hidden>
+        <div class="done-char hanzi" id="done-char"></div>
+        <h3 id="done-title" class="hanzi">太棒了!</h3>
+        <p id="done-sub"></p>
+        <div id="related-wrap" hidden>
+          <div class="related-label">Next up</div>
+          <div id="related" class="related"></div>
+        </div>
+        <div class="done-actions">
+          <button type="button" id="next-btn" class="btn primary">Next →</button>
+          <button type="button" id="again-btn" class="btn ghost">Write it again</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PROGRESS ================= -->
+    <section id="view-progress" class="view" hidden>
+      <div class="hero small">
+        <h1>My Hanzi</h1>
+        <p>Everything you have written so far.</p>
+      </div>
+      <div class="clay card notice">
+        <span class="notice-icon">💾</span>
+        <div>
+          <strong>Saved in this browser only.</strong>
+          This is temporary: clearing site data, private mode, or another device will not have it.
+          Export a copy if you want to keep it.
+        </div>
+        <div class="notice-actions">
+          <button type="button" id="export-btn" class="btn small">⬇ Export</button>
+          <label class="btn small ghost" for="import-file">⬆ Import</label>
+          <input type="file" id="import-file" accept="application/json" hidden>
+        </div>
+      </div>
+      <div class="stats-row" id="stats-row"></div>
+      <div class="clay card">
+        <div class="card-head">
+          <h2>Characters learned</h2>
+          <div class="seg clay small" id="progress-sort">
+            <button type="button" data-sort="recent" class="active">Recent</button>
+            <button type="button" data-sort="most">Most written</button>
+          </div>
+        </div>
+        <div id="learned-grid" class="learned-grid"></div>
+        <p id="learned-empty" class="empty">Nothing yet. Write your first character and it will appear here. <span class="hanzi">加油!</span></p>
+      </div>
+      <div class="danger-zone">
+        <button type="button" id="clear-progress" class="btn ghost danger small">Clear everything</button>
+      </div>
+    </section>
+
+    <!-- ================= 28 STROKES ================= -->
+    <section id="view-strokes" class="view" hidden>
+      <div class="hero small">
+        <h1>The 28 standard strokes</h1>
+        <p>Every hanzi is built from these. Tap an example to write it.</p>
+      </div>
+      <div class="strokes-grid" id="strokes-grid"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Learn Hanzi with tegarsantosa | contact: <a href="mailto:iam@tegarsantosa.com">iam@tegarsantosa.com</a></span>
+    <span class="footer-credits">Stroke data: <a href="https://github.com/skishore/makemeahanzi" target="_blank" rel="noopener">Make Me a Hanzi</a> · Engine: <a href="https://hanziwriter.org" target="_blank" rel="noopener">Hanzi Writer</a></span>
+  </footer>
+
+  <canvas id="confetti" aria-hidden="true"></canvas>
+  <div id="toast-layer" aria-live="polite"></div>
+
+  <script src="vendor/hanzi-writer.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

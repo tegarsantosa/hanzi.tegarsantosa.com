@@ -5,6 +5,7 @@ import { randomEntry, loadStrokes, relatedEntries, charDataLoader, LEVELS, getEn
 import { classifyStroke, strokeNameFor, strokeSVG, fitStrokeSVGs } from './strokes.js';
 import { cheer, bigCheer, spark, shake, confetti, toast } from './fx.js';
 import { recordCompletion, compressPaths, handwritingSVG } from './storage.js';
+import { sfx } from './sound.js';
 
 const HW = window.HanziWriter;
 const COLORS = {
@@ -68,7 +69,7 @@ export async function startSession(cfg) {
     ? `🎲 Random Mode (${(LEVELS[S.level] || LEVELS.all).label})`
     : `🔍 Search Mode${S.queue.length > 1 ? ` (${S.queue.length} characters)` : ''}`;
   el.replayBtn.hidden = !S.guidance;
-  el.hintBtn.textContent = S.guidance ? '💡 Show stroke' : '💡 Hint';
+  el.hintBtn.textContent = '💡 Show hint';
   await nextCharacter();
 }
 
@@ -112,7 +113,7 @@ function renderInfo(e) {
     strokeColor: COLORS.stroke, radicalColor: COLORS.radical,
     strokeAnimationSpeed: 1.3, delayBetweenStrokes: 220, charDataLoader,
   });
-  el.charPinyin.textContent = e.p.join(' · ') || '—';
+  el.charPinyin.textContent = e.p.join(' | ') || '—';
   el.charMeaning.textContent = e.d || '';
   el.charMeta.innerHTML = `<span><b>${e.n}</b> strokes</span>`
     + (e.r ? `<span>radical <b class="hanzi">${e.r}</b></span>` : '')
@@ -163,13 +164,16 @@ function padSize() {
   const w = el.padWrap.clientWidth || 360;
   return Math.max(240, Math.min(w - 8, 400));
 }
+const STEP_GAP = 16;      // must match .steps gap
+const STEP_PAD = 10;      // must match .steps horizontal padding
+/** Box size so that exactly 2.5 boxes are visible: previous, active, and half of the next one. */
 function stepSize() {
   const w = el.padWrap.clientWidth || 360;
-  return Math.max(140, Math.min(184, Math.floor((w - 40) / 2.2)));
+  return Math.max(104, Math.floor((w - 2 * STEP_PAD - 2 * STEP_GAP) / 2.5));
 }
-function writerOptions(size, extra) {
+function writerOptions(size, extra, padFrac = 0.09) {
   return {
-    width: size, height: size, padding: Math.round(size * 0.09),
+    width: size, height: size, padding: Math.round(size * padFrac),
     showOutline: true, showCharacter: false,
     strokeColor: COLORS.stroke, outlineColor: COLORS.outline, drawingColor: COLORS.drawing,
     drawingWidth: Math.max(5, Math.round(size * 0.05)),
@@ -191,7 +195,7 @@ function buildSinglePad() {
   currentStrokeIdx = 0;
   setStrokeLabel(0, n);
   w.quiz({
-    showHintAfterMisses: S.guidance ? 1 : 3,
+    showHintAfterMisses: S.guidance ? false : 3, // with guidance the hint comes only from the button
     leniency: 1.15,
     highlightOnComplete: true,
     onMistake: () => onMistake(pad),
@@ -199,13 +203,13 @@ function buildSinglePad() {
       onCorrect(pad, d, true);
       if (d.strokesRemaining > 0) {
         currentStrokeIdx = d.strokeNum + 1;
-        setStrokeLabel(currentStrokeIdx, n);
-        if (S.guidance) setTimeout(() => w.highlightStroke(currentStrokeIdx), 120);
+        setStrokeLabel(currentStrokeIdx, n, null, null, d.strokeNum);
+      } else {
+        setStrokeLabel(d.strokeNum, n, null, null, d.strokeNum);
       }
     },
     onComplete: () => setTimeout(() => onRepComplete(pad), 380),
   });
-  if (S.guidance) setTimeout(() => w.highlightStroke(0), 350);
 }
 
 /** Step-by-step: one box per stroke, laid out horizontally. Box k asks for strokes 1..k+1. */
@@ -230,7 +234,7 @@ function buildSteps() {
   outer.appendChild(strip);
   const hint = document.createElement('div');
   hint.className = 'steps-hint';
-  hint.textContent = n > 1 ? `${n} boxes · every box adds one stroke` : 'Just one stroke';
+  hint.textContent = n > 1 ? `${n} boxes | every box adds one stroke` : 'Just one stroke';
   outer.appendChild(hint);
   el.padWrap.appendChild(outer);
   activateStep(0);
@@ -243,14 +247,17 @@ function activateStep(k) {
   const strip = cell.parentElement;
   cell.classList.remove('pending');
   cell.classList.add('active');
-  strip.scrollTo({ left: cell.offsetLeft - (strip.clientWidth - cell.offsetWidth) / 2, behavior: 'smooth' });
+  // keep one finished box on the left, the active box in the middle, and half of the next one peeking on the right
+  const cellLeft = cell.offsetLeft - strip.offsetLeft - STEP_PAD;
+  strip.scrollTo({ left: Math.max(0, cellLeft - (size + STEP_GAP)), behavior: 'smooth' });
   const partial = {
     strokes: S.data.strokes.slice(0, k + 1),
     medians: S.data.medians.slice(0, k + 1),
     radStrokes: (S.data.radStrokes || []).filter((i) => i <= k),
   };
+  // small boxes: keep only a thin margin so the character fills the square
   const w = HW.create(cell.querySelector('.writer'), S.current.c,
-    writerOptions(size, { charDataLoader: (c, onLoad) => onLoad(partial) }));
+    writerOptions(size, { charDataLoader: (c, onLoad) => onLoad(partial) }, 0.03));
   writers.push(w);
   currentWriter = w;
   currentStrokeIdx = 0;
@@ -258,7 +265,7 @@ function activateStep(k) {
   if (last) S.paths = [];
   setStrokeLabel(0, k + 1, k, n);
   w.quiz({
-    showHintAfterMisses: 1,
+    showHintAfterMisses: false, // hint only from the button
     leniency: 1.2,
     highlightOnComplete: last,
     onMistake: () => onMistake(cell),
@@ -266,8 +273,9 @@ function activateStep(k) {
       onCorrect(cell, d, last);
       if (d.strokesRemaining > 0) {
         currentStrokeIdx = d.strokeNum + 1;
-        setStrokeLabel(currentStrokeIdx, k + 1, k, n);
-        if (currentStrokeIdx === k) setTimeout(() => w.highlightStroke(k), 120); // the new stroke
+        setStrokeLabel(currentStrokeIdx, k + 1, k, n, d.strokeNum);
+      } else {
+        setStrokeLabel(d.strokeNum, k + 1, k, n, d.strokeNum);
       }
     },
     onComplete: () => {
@@ -277,18 +285,18 @@ function activateStep(k) {
       else setTimeout(() => onRepComplete(cell), 380);
     },
   });
-  if (k === 0) setTimeout(() => w.highlightStroke(0), 350);
 }
 
-function setStrokeLabel(i, n, box = null, boxes = null) {
+/** i = stroke the user writes next; wrote = stroke just completed (its name is shown as information) */
+function setStrokeLabel(i, n, box = null, boxes = null, wrote = null) {
   if (!S) return;
   const parts = [];
   if (box != null) parts.push(`<span class="sn">Box ${box + 1} / ${boxes}</span>`);
   parts.push(`<span class="sn">Stroke ${i + 1} / ${n}</span>`);
-  if (S.guidance) {
-    const st = classifyStroke(S.data.medians[i], S.current.c, i);
+  if (S.guidance && wrote != null) {
+    const st = classifyStroke(S.data.medians[wrote], S.current.c, wrote);
     if (st) {
-      parts.push(`<span class="sname" title="${st.en}">${strokeSVG(S.data.strokes[i], 26, '#b45309')}`
+      parts.push(`<span class="sname" title="${st.en}">${strokeSVG(S.data.strokes[wrote], 26, '#b45309')}`
         + `<span class="hanzi">${strokeNameFor(st, S.script)}</span><span class="py">${st.py}</span></span>`);
     }
   }
@@ -301,10 +309,12 @@ function onMistake(pad) {
   S.repMistakes++;
   S.charMistakes++;
   shake(pad);
+  sfx.miss();
 }
 function onCorrect(pad, d, collect) {
   if (!S) return;
   S.charStrokes++;
+  sfx.stroke();
   if (collect) S.paths.push(d.drawnPath.points);
   const nums = d.drawnPath.pathString.match(/-?[\d.]+/g);
   if (nums && nums.length >= 2) spark(pad, +nums[nums.length - 2], +nums[nums.length - 1]);
@@ -318,6 +328,7 @@ function onRepComplete(pad) {
   renderRepDots();
   pad.classList.add('glow');
   if (S.rep < S.reps) {
+    sfx.rep();
     cheer(pad, { perfect });
     autoTimer = setTimeout(startRep, 1050);
   } else {
@@ -329,6 +340,7 @@ function finishCharacter(pad) {
   const e = S.current;
   const r = pad.getBoundingClientRect();
   confetti({ origin: { x: r.left + r.width / 2, y: r.top + r.height / 2 } });
+  sfx.done();
   cheer(pad, { big: true });
   const res = recordCompletion({
     char: e.c, script: S.script, reps: S.reps,
@@ -348,8 +360,8 @@ function showDone(e, { skipped = false } = {}) {
   el.doneTitle.textContent = skipped ? 'Skipped' : bigCheer();
   const perfect = S.charMistakes === 0;
   el.doneSub.textContent = skipped
-    ? `${e.c} · ${e.p.join(' / ')} · maybe next time`
-    : `${e.c} · ${e.p.join(' / ')} · written ${S.reps}×${perfect ? ' · flawless 🌟' : ''}`;
+    ? `${e.c} | ${e.p.join(' / ')} | maybe next time`
+    : `${e.c} | ${e.p.join(' / ')} | written ${S.reps}×${perfect ? ' | flawless 🌟' : ''}`;
   el.relatedWrap.hidden = true;
   el.related.innerHTML = '';
   el.againBtn.hidden = skipped;

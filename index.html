@@ -81,8 +81,8 @@
     <!-- ================= HOME / SETUP ================= -->
     <section id="view-home" class="view">
       <div class="hero">
-        <h1>Write hanzi.<br><span>Right here, right now.</span></h1>
-        <p>Pick a mode, trace the strokes, feel the flow. <span class="hanzi">加油!</span></p>
+        <h1>Write hanzi with me.<br><span> always FREE.</span></h1>
+        <p>Choose your mode, write the strokes, improve your chinese. <span class="hanzi">加油!</span></p>
       </div>
 
       <div class="clay card quick" id="quick">
@@ -124,7 +124,7 @@
             <div class="search-box clay">
               <span class="search-icon">🔍</span>
               <input id="search-input" type="search" autocomplete="off" spellcheck="false"
-                     placeholder="汉字 · pinyin (ni3, nǐ) · English">
+                     placeholder="汉字 / pinyin (ni3, nǐ) / English">
             </div>
             <div id="search-results" class="results" role="listbox"></div>
             <div id="search-picked" class="picked" hidden>
@@ -155,6 +155,14 @@
             </div>
           </div>
 
+          <div class="opt-row">
+            <div><label class="opt-label">Sound effects</label><small class="opt-help">Soft clicks and chimes while you write</small></div>
+            <div class="seg clay" id="sound-seg">
+              <button type="button" data-sound="on" class="active">On</button>
+              <button type="button" data-sound="off">Off</button>
+            </div>
+          </div>
+
           <div class="opt-row column" id="guide-type-row">
             <label class="opt-label">Guide style</label>
             <div class="guide-cards">
@@ -175,7 +183,6 @@
             </div>
           </div>
 
-          <button type="button" id="start-btn" class="btn primary big">Start writing ✍️</button>
         </div>
       </div>
 
@@ -187,7 +194,7 @@
       <div class="practice-top">
         <button type="button" id="back-btn" class="btn ghost small">← Setup</button>
         <div class="rep-dots" id="rep-dots" aria-label="Repetitions"></div>
-        <div class="mode-badge clay" id="mode-badge"></div>
+        <div class="practice-top-right"><button type="button" id="sound-btn" class="btn ghost small" aria-pressed="true" title="Sound effects">🔊</button><div class="mode-badge clay" id="mode-badge"></div></div>
       </div>
 
       <div class="practice-grid">
@@ -276,15 +283,18 @@
 
   <footer class="footer">
     <span>Learn Hanzi with tegarsantosa | contact: <a href="mailto:iam@tegarsantosa.com">iam@tegarsantosa.com</a></span>
-    <span class="footer-credits">Stroke data: <a href="https://github.com/skishore/makemeahanzi" target="_blank" rel="noopener">Make Me a Hanzi</a> · Engine: <a href="https://hanziwriter.org" target="_blank" rel="noopener">Hanzi Writer</a></span>
+    <span class="footer-credits">Stroke data: <a href="https://github.com/skishore/makemeahanzi" target="_blank" rel="noopener">Make Me a Hanzi</a> | Engine: <a href="https://hanziwriter.org" target="_blank" rel="noopener">Hanzi Writer</a></span>
   </footer>
 
   <div class="about-backdrop" id="about-modal" hidden>
     <section class="about-modal clay" role="dialog" aria-modal="true" aria-labelledby="about-title">
       <button type="button" class="modal-close" data-about-close aria-label="Close About">×</button>
       <div class="about-mark hanzi">学</div>
-      <p class="eyebrow">A FREE small place to keep practicing</p>
-      <h2 id="about-title">This site is for everybody who wants to learn Hanzi.</h2>
+      <p class="eyebrow">tegarsantosa said:</p>
+      <h2 id="about-title">你好 GUYSSS !!</h2>
+      <p class="about-lead">
+        This site is a free small place for everybody who wants to learn Hanzi.
+      </p>
       <p class="about-lead">
         I am writing and releasing this website at the Main Library of National Taiwan University.
         It came from my concern where it is quite difficult to find a simple, free, and effective tool to practice writing Chinese characters online, especially for me, during my internship research at NTU.
@@ -292,6 +302,10 @@
       <p class="about-lead">
         Wrapping my personal struggles in learning Chinese, I made this webiste to help myself and hopefully others who are learning Chinese characters.
         This tools will always be <b>free</b> and <b>open source</b>. If you have any suggestions, please feel free to reach out to me at <a href="mailto:iam@tegarsantosa.com">iam@tegarsantosa.com</a>.
+      </p>
+      <p class="about-lead">
+        Chinese is my 3rd language, and I know it is not easy to learn especially using my 2nd language to learn it.
+        So let's learn together and have fun! 加油!
       </p>
       <div class="about-modal-actions">
         <a class="btn primary" href="https://tegarsantosa.com" style="text-decoration:none">Read more about me →</a>

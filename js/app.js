@@ -7,11 +7,14 @@ import {
   loadSettings, saveSettings, loadProgress, streak, exportProgress, importProgress, clearProgress, handwritingSVG,
 } from './storage.js';
 import { initPractice, startSession, stopSession, isActive, setSessionScript } from './practice.js';
+import { setSoundEnabled, sfx } from './sound.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
 let settings = loadSettings();
+if (settings.sound === undefined) settings.sound = true;
+setSoundEnabled(settings.sound);
 let picked = [];
 let progressSort = 'recent';
 
@@ -136,7 +139,6 @@ function wireHome() {
     if (first) { first.click(); start(); }
   });
   $('#picked-clear').addEventListener('click', () => { picked = []; renderPicked(); });
-  $('#start-btn').addEventListener('click', start);
   // quick start: write first, tweak later
   $('#quick-random').addEventListener('click', () => {
     if (!(settings.mode === 'search' && picked.length)) { settings.mode = 'random'; saveSettings(settings); syncHome(); }
@@ -148,6 +150,8 @@ function wireHome() {
     inp.focus();
     $('#setup').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
+  $$('#sound-seg button').forEach((b) => b.addEventListener('click', () => setSound(b.dataset.sound === 'on')));
+  $('#sound-btn').addEventListener('click', () => setSound(!settings.sound));
   $('#options-toggle').addEventListener('click', () => {
     const open = !$('#view-home').classList.contains('options-open');
     setOptionsOpen(open);
@@ -165,15 +169,23 @@ function syncHome() {
   $$('#guidance-seg button').forEach((b) => b.classList.toggle('active', (b.dataset.guidance === 'yes') === settings.guidance));
   $('#guide-type-row').classList.toggle('disabled', !settings.guidance);
   $$('.guide-card').forEach((b) => b.classList.toggle('active', b.dataset.guide === settings.guideType));
-  const btn = $('#start-btn');
-  if (settings.mode === 'random') btn.textContent = 'Start writing ✍️';
-  else btn.textContent = picked.length ? `Write ${picked.map((e) => e.c).join('')} ✍️` : 'Pick a character first';
+  $$('#sound-seg button').forEach((b) => b.classList.toggle('active', (b.dataset.sound === 'on') === !!settings.sound));
+  const sb = $('#sound-btn');
+  sb.textContent = settings.sound ? '🔊' : '🔇';
+  sb.setAttribute('aria-pressed', String(!!settings.sound));
   const guide = settings.guidance ? (settings.guideType === 'steps' ? 'step-by-step guide' : 'realtime guide') : 'no guide';
   const what = settings.mode === 'search' && picked.length
     ? `Write ${picked.map((e) => e.c).join('')}`
-    : `Random · ${(LEVELS[settings.level] || LEVELS.all).label.toLowerCase()} characters`;
-  $('#quick-summary').textContent = `${what} · ${settings.reps}× each · ${guide}`;
+    : `Random | ${(LEVELS[settings.level] || LEVELS.all).label.toLowerCase()} characters`;
+  $('#quick-summary').textContent = `${what} | ${settings.reps}× each | ${guide}`;
   $('#quick-random').textContent = settings.mode === 'search' && picked.length ? `✍️ Write ${picked.map((e) => e.c).join('')}` : '✍️ Start writing';
+}
+function setSound(on) {
+  settings.sound = !!on;
+  saveSettings(settings);
+  setSoundEnabled(settings.sound);
+  syncHome();
+  if (settings.sound) sfx.tap();
 }
 function setOptionsOpen(open) {
   $('#view-home').classList.toggle('options-open', open);
@@ -244,9 +256,9 @@ function renderHomeStats() {
   box.hidden = false;
   const recent = chars.sort((a, b) => (b[1].last || '').localeCompare(a[1].last || '')).slice(0, 8);
   box.innerHTML = `<span>You have written <strong>${chars.length}</strong> character${chars.length > 1 ? 's' : ''}`
-    + ` · <strong>${p.totals.reps}</strong> repetitions</span>`
+    + ` | <strong>${p.totals.reps}</strong> repetitions</span>`
     + `<div class="mini-chars">${recent.map(([c]) => `<span class="hanzi">${c}</span>`).join('')}</div>`
-    + '<a class="btn small" href="#/progress">See all ⭐</a>';
+    + '<a class="btn small" href="#/progress" style="text-decoration: none;">See all ⭐</a>';
 }
 
 // ---------------------------------------------------------------- progress
@@ -302,7 +314,7 @@ function renderProgress() {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'learned';
-    b.title = `${c} · ${e?.d || ''} · write it again`;
+    b.title = `${c} | ${e?.d || ''} | write it again`;
     const pic = r.w && r.w.length
       ? `<span class="ghost-glyph hanzi">${c}</span>${handwritingSVG(r.w)}`
       : `<span class="glyph hanzi">${c}</span>`;
@@ -323,7 +335,7 @@ function renderStrokesView() {
       + `<span class="glyph hanzi" data-glyph>${s.g}</span>`
       + `<span class="zh hanzi">${strokeNameFor(s, settings.script)}</span>`
       + `<span class="py">${s.py}</span><span class="en">${s.en}</span>`
-      + `<button type="button" class="ex" data-char="${ex?.c || s.ex}">as in <b class="hanzi">${ex?.c || s.ex}</b> · write it</button>`
+      + `<button type="button" class="ex" data-char="${ex?.c || s.ex}">as in <b class="hanzi">${ex?.c || s.ex}</b> | write it</button>`
       + '</div>';
   }).join('');
   $$('#strokes-grid .ex').forEach((b) => b.addEventListener('click', () => {

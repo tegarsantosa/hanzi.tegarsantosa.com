@@ -50,6 +50,13 @@ async function boot() {
 // ---------------------------------------------------------------- header / script
 function wireHeader() {
   $$('.script-toggle button').forEach((b) => b.addEventListener('click', () => setScript(b.dataset.script)));
+  const modal = $('#about-modal');
+  const openAbout = () => { modal.hidden = false; document.body.classList.add('modal-open'); $('[data-about-close]', modal).focus(); };
+  const closeAbout = () => { modal.hidden = true; document.body.classList.remove('modal-open'); };
+  $('[data-about-open]').addEventListener('click', openAbout);
+  $$('[data-about-close]', modal).forEach((b) => b.addEventListener('click', closeAbout));
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeAbout(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeAbout(); });
 }
 function applyScript(s) {
   document.documentElement.dataset.script = s;

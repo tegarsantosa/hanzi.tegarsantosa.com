@@ -69,6 +69,7 @@
       <a href="#/" data-nav="home">✍️ Practice</a>
       <a href="#/progress" data-nav="progress">⭐ My Hanzi</a>
       <a href="#/strokes" data-nav="strokes">🖌️ 28 Strokes</a>
+      <button type="button" data-about-open aria-haspopup="dialog">ℹ️ About</button>
     </nav>
     <div class="script-toggle clay" role="group" aria-label="Character set">
       <button type="button" data-script="simp" class="active"><span class="hanzi">简</span> Simplified</button>
@@ -269,6 +270,27 @@
     <span>Learn Hanzi with tegarsantosa | contact: <a href="mailto:iam@tegarsantosa.com">iam@tegarsantosa.com</a></span>
     <span class="footer-credits">Stroke data: <a href="https://github.com/skishore/makemeahanzi" target="_blank" rel="noopener">Make Me a Hanzi</a> · Engine: <a href="https://hanziwriter.org" target="_blank" rel="noopener">Hanzi Writer</a></span>
   </footer>
+
+  <div class="about-backdrop" id="about-modal" hidden>
+    <section class="about-modal clay" role="dialog" aria-modal="true" aria-labelledby="about-title">
+      <button type="button" class="modal-close" data-about-close aria-label="Close About">×</button>
+      <div class="about-mark hanzi">学</div>
+      <p class="eyebrow">A FREE small place to keep practicing</p>
+      <h2 id="about-title">This site is for everybody who wants to learn Hanzi.</h2>
+      <p class="about-lead">
+        I am writing and releasing this website at the Main Library of National Taiwan University.
+        It came from my concern where it is quite difficult to find a simple, free, and effective tool to practice writing Chinese characters online, especially for me, during my internship research at NTU.
+      </p>
+      <p class="about-lead">
+        Wrapping my personal struggles in learning Chinese, I made this webiste to help myself and hopefully others who are learning Chinese characters.
+        This tools will always be <b>free</b> and <b>open source</b>. If you have any suggestions, please feel free to reach out to me at <a href="mailto:iam@tegarsantosa.com">iam@tegarsantosa.com</a>.
+      </p>
+      <div class="about-modal-actions">
+        <a class="btn primary" href="https://tegarsantosa.com" style="text-decoration:none">Read more about me →</a>
+        <button type="button" class="btn ghost" data-about-close>Back to practice</button>
+      </div>
+    </section>
+  </div>
 
   <canvas id="confetti" aria-hidden="true"></canvas>
   <div id="toast-layer" aria-live="polite"></div>

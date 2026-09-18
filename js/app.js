@@ -28,7 +28,7 @@ async function boot() {
   wireProgress();
   renderStrokesView();
   initPractice({
-    practiceGrid: $('.practice-grid'), padWrap: $('#pad-wrap'), strokeLabel: $('#stroke-label'),
+    practiceGrid: $('.practice-grid'), writeCard: $('.write-card'), padWrap: $('#pad-wrap'), strokeLabel: $('#stroke-label'),
     repDots: $('#rep-dots'), modeBadge: $('#mode-badge'),
     charPreview: $('#char-preview'), charPinyin: $('#char-pinyin'), charMeaning: $('#char-meaning'),
     charMeta: $('#char-meta'), charVariants: $('#char-variants'),
@@ -137,6 +137,22 @@ function wireHome() {
   });
   $('#picked-clear').addEventListener('click', () => { picked = []; renderPicked(); });
   $('#start-btn').addEventListener('click', start);
+  // quick start: write first, tweak later
+  $('#quick-random').addEventListener('click', () => {
+    if (!(settings.mode === 'search' && picked.length)) { settings.mode = 'random'; saveSettings(settings); syncHome(); }
+    start();
+  });
+  $('#quick-search').addEventListener('click', () => {
+    settings.mode = 'search'; saveSettings(settings); setOptionsOpen(true); syncHome();
+    const inp = $('#search-input');
+    inp.focus();
+    $('#setup').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  $('#options-toggle').addEventListener('click', () => {
+    const open = !$('#view-home').classList.contains('options-open');
+    setOptionsOpen(open);
+    if (open) $('#setup').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
   syncHome();
   updatePoolCount();
 }
@@ -152,6 +168,16 @@ function syncHome() {
   const btn = $('#start-btn');
   if (settings.mode === 'random') btn.textContent = 'Start writing ✍️';
   else btn.textContent = picked.length ? `Write ${picked.map((e) => e.c).join('')} ✍️` : 'Pick a character first';
+  const guide = settings.guidance ? (settings.guideType === 'steps' ? 'step-by-step guide' : 'realtime guide') : 'no guide';
+  const what = settings.mode === 'search' && picked.length
+    ? `Write ${picked.map((e) => e.c).join('')}`
+    : `Random · ${(LEVELS[settings.level] || LEVELS.all).label.toLowerCase()} characters`;
+  $('#quick-summary').textContent = `${what} · ${settings.reps}× each · ${guide}`;
+  $('#quick-random').textContent = settings.mode === 'search' && picked.length ? `✍️ Write ${picked.map((e) => e.c).join('')}` : '✍️ Start writing';
+}
+function setOptionsOpen(open) {
+  $('#view-home').classList.toggle('options-open', open);
+  $('#options-toggle').textContent = open ? 'Hide options' : 'Change options';
 }
 function updatePoolCount() {
   $('#pool-count').textContent = poolSize(settings.script, 'all').toLocaleString() + ' chars';

@@ -85,7 +85,7 @@ async function nextCharacter() {
   if (!S) return;
   clearTimers();
   el.donePanel.hidden = true;
-  el.practiceGrid.hidden = false;
+  el.writeCard.classList.remove('showing-done');
   let entry = S.queue.shift();
   if (!entry && S.mode === 'random') entry = randomEntry(S.script, S.level, S.recent);
   if (!entry) { hooks.onQueueEmpty?.(); return; }
@@ -341,7 +341,7 @@ function finishCharacter(pad) {
 
 function showDone(e, { skipped = false } = {}) {
   if (!S) return;
-  el.practiceGrid.hidden = true;
+  el.writeCard.classList.add('showing-done');
   el.donePanel.hidden = false;
   el.doneChar.innerHTML = S.lastPaths && !skipped ? handwritingSVG(compressPaths(S.lastPaths), { width: 72 }) : '';
   if (!el.doneChar.innerHTML) el.doneChar.textContent = e.c;

@@ -72,8 +72,8 @@
       <button type="button" data-about-open aria-haspopup="dialog">ℹ️ About</button>
     </nav>
     <div class="script-toggle clay" role="group" aria-label="Character set">
-      <button type="button" data-script="simp" class="active"><span class="hanzi">简</span> Simplified</button>
-      <button type="button" data-script="trad"><span class="hanzi">繁</span> Traditional</button>
+      <button type="button" data-script="simp" class="active"><span class="hanzi">简</span> <span class="lbl">Simplified</span></button>
+      <button type="button" data-script="trad"><span class="hanzi">繁</span> <span class="lbl">Traditional</span></button>
     </div>
   </header>
 
@@ -85,7 +85,15 @@
         <p>Pick a mode, trace the strokes, feel the flow. <span class="hanzi">加油!</span></p>
       </div>
 
-      <div class="setup">
+      <div class="clay card quick" id="quick">
+        <div class="quick-row">
+          <button type="button" id="quick-random" class="btn primary big">✍️ Start writing</button>
+          <button type="button" id="quick-search" class="btn big">🔍 Find a character</button>
+        </div>
+        <p class="quick-summary"><span id="quick-summary"></span><button type="button" id="options-toggle" class="link-btn">Change options</button></p>
+      </div>
+
+      <div class="setup" id="setup">
         <div class="clay card">
           <h2>Mode</h2>
           <div class="mode-cards">
@@ -202,10 +210,7 @@
             <button type="button" id="hint-btn" class="btn small">💡 Hint</button>
             <button type="button" id="restart-btn" class="btn small ghost">↺ Restart</button>
           </div>
-        </div>
-      </div>
-
-      <div id="done-panel" class="clay card done-panel" hidden>
+      <div id="done-panel" class="done-panel" hidden>
         <div class="done-char hanzi" id="done-char"></div>
         <h3 id="done-title" class="hanzi">太棒了!</h3>
         <p id="done-sub"></p>
@@ -218,6 +223,9 @@
           <button type="button" id="again-btn" class="btn ghost">Write it again</button>
         </div>
       </div>
+        </div>
+      </div>
+
     </section>
 
     <!-- ================= PROGRESS ================= -->
